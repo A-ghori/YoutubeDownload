@@ -25,7 +25,7 @@ app.get("/download", (req, res) => {
   res.setHeader("Content-Type", "video/mp4");
 
   // Use yt-dlp to download and stream directly
-  const makichu = spawn("/opt/homebrew/bin/yt-dlp", ["-f", 
+  const makichu = spawn("yt-dlp", ["-f", 
     "best[ext=mp4]/best", 
     "-o",
      "-", 
