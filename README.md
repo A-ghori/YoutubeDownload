@@ -67,7 +67,3 @@ A simple web application for downloading YouTube videos and audio using yt-dlp.
 ## Deployment
 
 The application is configured to run on Render (https://youtubedownload-3mu6.onrender.com) or locally on port 3000.
-
-## License
-
-This project is for educational purposes only. Ensure compliance with YouTube's terms of service.
