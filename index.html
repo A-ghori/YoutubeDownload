@@ -4,107 +4,59 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>YouTube Downloader</title>
-  <link rel="stylesheet" href="index.css"> <!-- optional CSS -->
   <style>
-    /* Overlay styles */
+    body { font-family: Arial; padding: 20px; }
+    input { display: block; margin: 10px 0; width: 300px; padding: 8px; }
+    button { margin: 5px; padding: 8px 12px; }
     #overlay {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top:0; left:0;
+      width:100%; height:100%;
       background: rgba(0,0,0,0.9);
-      display: none;
+      display:none;
       justify-content: center;
       align-items: center;
       z-index: 9999;
     }
-    #overlay img {
-      max-width: 80%;
-      max-height: 80%;
-    }
-    /* Basic input/button styles */
-    body {
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: #eee;
-      padding: 20px;
-    }
-    input {
-      padding: 10px;
-      margin: 10px 0;
-      width: 100%;
-      max-width: 400px;
-      border-radius: 5px;
-      border: none;
-    }
-    button {
-      padding: 10px 20px;
-      margin: 5px;
-      border: none;
-      border-radius: 5px;
-      background: #4CAF50;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #45a049;
-    }
+    #overlay img { max-width: 80%; max-height: 80%; }
   </style>
 </head>
 <body>
-
   <h1>YouTube Downloader</h1>
 
-  <!-- Overlay -->
+  <!-- Optional overlay -->
   <div id="overlay">
-    <img src="loading-image.png" alt="Downloading..." id="overlay-img">
+    <img src="loading-image.png" alt="Downloading...">
   </div>
 
   <!-- Inputs -->
-  <input type="text" id="url" placeholder="Enter YouTube Video URL">
-  <input type="text" id="url1" placeholder="Enter YouTube Audio URL">
+  <input type="text" id="url" placeholder="Enter Video URL">
+  <input type="text" id="url1" placeholder="Enter Audio URL">
 
   <!-- Buttons -->
-  <div>
-    <button id="downloadShorts">Download Shorts</button>
-    <button id="downloadVideo">Download Video</button>
-    <button id="downloadAudio">Download Audio</button>
-  </div>
+  <button id="downloadShorts">Download Shorts</button>
+  <button id="downloadVideo">Download Video</button>
+  <button id="downloadAudio">Download Audio</button>
 
-  <!-- Script -->
   <script>
-    // Buttons
-    document.getElementById('downloadShorts').addEventListener('click', () => openDownloadModal('shorts'));
-    document.getElementById('downloadVideo').addEventListener('click', () => openDownloadModal('video'));
-    document.getElementById('downloadAudio').addEventListener('click', () => openDownloadModal('audio'));
+    const backendBase = 'https://youtubedownload-3mu6.onrender.com'; // 'http://localhost:3000' local testing, change to Render URL when deployed
 
-    async function openDownloadModal(type) {
+    async function downloadFile(type) {
       const videoUrl = document.getElementById('url').value.trim();
       const audioUrl = document.getElementById('url1').value.trim();
       const finalUrl = type === 'audio' ? audioUrl : videoUrl;
 
-      if (!finalUrl) {
-        alert('Please enter a YouTube URL');
-        return;
-      }
+      if (!finalUrl) return alert('Please enter a URL');
 
-      // Render backend base URL
-      const backendBase = 'https://youtubedownload-3mu6.onrender.com';
+      const endpoint = type === 'audio' ?
+        `${backendBase}/audio-download?audioURL=${encodeURIComponent(finalUrl)}` :
+        `${backendBase}/download?videoURL=${encodeURIComponent(finalUrl)}&type=${type}`;
 
-      // Build endpoint
-      let endpoint = '';
-      if(type === 'audio'){
-          endpoint = `${backendBase}/audio-download?audioURL=${encodeURIComponent(finalUrl)}`;
-      } else {
-          endpoint = `${backendBase}/download?videoURL=${encodeURIComponent(finalUrl)}&type=${type}`;
-      }
-
-      // Show overlay
-      document.getElementById('overlay').style.display = 'flex';
+      // Show overlay if present
+      const overlay = document.getElementById('overlay');
+      if(overlay) overlay.style.display = 'flex';
 
       try {
-        // Fetch the file as blob
         const response = await fetch(endpoint);
         if(!response.ok) throw new Error('Download failed');
 
@@ -113,10 +65,9 @@
         const a = document.createElement('a');
         a.href = urlBlob;
 
-        // Set filename from content-disposition header if available
         const disposition = response.headers.get('Content-Disposition');
         let filename = 'download';
-        if(disposition && disposition.includes('filename=')){
+        if(disposition && disposition.includes('filename=')) {
           filename = disposition.split('filename=')[1].replace(/"/g,'');
         }
         a.download = filename;
@@ -124,14 +75,16 @@
         a.click();
         document.body.removeChild(a);
         window.URL.revokeObjectURL(urlBlob);
-      } catch (err) {
+      } catch(err) {
         alert('Download failed: ' + err.message);
       } finally {
-        // Hide overlay after download completes or fails
-        document.getElementById('overlay').style.display = 'none';
+        if(overlay) overlay.style.display = 'none';
       }
     }
-  </script>
 
+    document.getElementById('downloadShorts').addEventListener('click', () => downloadFile('shorts'));
+    document.getElementById('downloadVideo').addEventListener('click', () => downloadFile('video'));
+    document.getElementById('downloadAudio').addEventListener('click', () => downloadFile('audio'));
+  </script>
 </body>
 </html>

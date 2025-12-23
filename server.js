@@ -1,9 +1,10 @@
 const express = require("express");
 const { spawn } = require("child_process");
-
+const cors = require("cors");
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.set("trust proxy", true);  // For IP adressess store and show
+app.use(cors({origin: "*" }))
 app.use(express.static(__dirname))
 
 app.get("/download", (req, res) => {
