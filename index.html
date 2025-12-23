@@ -39,7 +39,9 @@
   <button id="downloadAudio">Download Audio</button>
 
   <script>
-    const backendBase = 'https://youtubedownload-3mu6.onrender.com'; // 'http://localhost:3000' local testing, change to Render URL when deployed
+   const backendBase = window.location.hostname === 'localhost'
+                    ? 'http://localhost:3000'
+                    : 'https://youtubedownload-3mu6.onrender.com';
 
     async function downloadFile(type) {
       const videoUrl = document.getElementById('url').value.trim();
