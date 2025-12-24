@@ -4,16 +4,10 @@ const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 3000;
 const cookies_path = process.env.YT_COOKIES;
-const fs = require("fs");
-const path = require("path");
 
 
 
-const cookiesFile = path.join(__dirname, "cookies.txt");
 
-if (process.env.YT_COOKIES) {
-  fs.writeFileSync(cookiesFile, process.env.YT_COOKIES);
-}
 
 
 
@@ -39,7 +33,7 @@ app.get("/download", (req, res) => {
   res.setHeader("Content-Type", "video/mp4");
 
   // Use yt-dlp to download and stream directly
-  const makichu = spawn("yt-dlp", ["--cookies",cookiesFile,"-f", 
+  const makichu = spawn("yt-dlp", ["-f", 
     "best[ext=mp4]/best", 
     "-o",
      "-", 
@@ -70,7 +64,7 @@ app.get("/audio-download",(req,res)=>{
   res.setHeader("Content-Type","audio/mpeg")
 
 const bahenkuchu = spawn("yt-dlp",[
-  "--cookies",cookiesFile,'-x',
+    '-x',
    '--audio-format', 'mp3',
    '-o', '-',
   '--no-playlist',
